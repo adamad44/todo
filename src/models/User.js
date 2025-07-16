@@ -13,6 +13,19 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		minlength: 6,
 	},
+	todos: [
+		{
+			title: {
+				type: String,
+				required: true,
+				trim: true,
+			},
+			completed: {
+				type: Boolean,
+				default: false,
+			},
+		},
+	],
 });
 
 const User = mongoose.model("User", userSchema);

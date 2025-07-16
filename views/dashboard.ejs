@@ -7,10 +7,22 @@
 		<link rel="stylesheet" href="/css/style.css" />
 	</head>
 	<body>
-		<h1 id="dashboard-root">Todo app - dashboard</h1>
-		<header>
+		<header id="header1">
+			<h1 id="dashboard-root">Todo app - dashboard</h1>
 			<a><button id="logout-button">Logout</button></a>
 		</header>
+
+		<p id="error-message" class="error" style="display: none; color: red"></p>
+		<div id="inputs-container">
+			<input type="text" id="todo-input" placeholder="Enter your todo" />
+			<br />
+			<button id="add-todo-button">Add</button>
+		</div>
+		<div id="todo-container">
+			<br />
+			<p>Todos:</p>
+			<ul id="todo-list"></ul>
+		</div>
 
 		<script src="/js/main.js"></script>
 	</body>

@@ -633,3 +633,45 @@ sub {
 		white-space: pre-wrap;
 	}
 }
+
+#dashboard-root {
+	display: flex;
+	justify-content: center;
+}
+
+#header1 {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 2rem 1rem 2rem;
+	flex-wrap: wrap;
+
+	@media only screen and (max-width: 720px) {
+		flex-direction: column;
+		padding: 1rem;
+		justify-content: center;
+	}
+}
+
+#logout-button {
+	float: left;
+	font-size: 1rem;
+}
+
+#inputs-container {
+	margin: 1rem auto;
+	gap: 1rem;
+
+	display: flex;
+	width: 40%;
+	max-width: 1200px;
+
+	align-items: center;
+	justify-content: space-between;
+
+	@media only screen and (max-width: 720px) {
+		flex-direction: column;
+		width: 100%;
+		gap: 0.5rem;
+	}
+}

@@ -108,7 +108,7 @@ app.post("/api/login", async (req, res) => {
 			return res.status(400).json({ error: "password incorrect" });
 		}
 		if (validPassword) {
-			const token = jwt.sign({ userID: User._id }, process.env.JWT_SECRET);
+			const token = jwt.sign({ userID: existingUser._id }, process.env.JWT_SECRET);
 
 			return res.status(201).json({
 				success: true,
@@ -127,6 +127,91 @@ app.post("/api/login", async (req, res) => {
 		}
 
 		res.status(500).json({ error: "Internal server error" });
+	}
+});
+
+function authenticateToken(req, res, next) {
+	const token = req.headers["authorization"];
+	if (!token) return res.status(401).json({ error: "No token provided" });
+	jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+		if (err) return res.status(403).json({ error: "Invalid token" });
+		req.user = user;
+		next();
+	});
+}
+
+app.get("/api/get-todos", authenticateToken, async (req, res) => {
+	try {
+		const userId = req.user.userID;
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		res.status(200).json(user.todos);
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Failed to fetch todos" });
+	}
+});
+
+app.post("/api/add-todo", authenticateToken, async (req, res) => {
+	try {
+		const userId = req.user.userID;
+		const user = await User.findById(userId);
+		const { title } = req.body;
+		if (!user) return res.status(404).json({ error: "user not found" });
+
+		if (!title || title.trim() === "") {
+			return res.status(400).json({ error: "Todo title is required" });
+		}
+
+		user.todos.push({ title });
+		await user.save();
+
+		res.status(201).json({ success: true });
+	} catch (err) {
+		res.status(500).json({ error: "Failed to add todo" });
+	}
+});
+
+app.delete("/api/delete-todo/:id", authenticateToken, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.userID);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const todoId = req.params.id;
+		user.todos = user.todos.filter((todo) => todo._id.toString() !== todoId);
+		await user.save();
+
+		res.status(200).json({ success: true });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Failed to delete todo" });
+	}
+});
+
+app.patch("/api/update-todo/:id", authenticateToken, async (req, res) => {
+	try {
+		const userId = req.user.userID;
+		const todoId = req.params.id;
+		const { title } = req.body;
+
+		if (!title || title.trim() === "") {
+			return res.status(400).json({ error: "Todo title is required" });
+		}
+
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const todo = user.todos.id(todoId);
+		if (!todo) return res.status(404).json({ error: "Todo not found" });
+
+		todo.title = title.trim();
+		await user.save();
+
+		res.status(200).json({ success: true });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: "Failed to update todo" });
 	}
 });
 

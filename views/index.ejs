@@ -7,11 +7,27 @@
 		<link rel="stylesheet" href="/css/style.css" />
 	</head>
 	<body>
-		<h1>Todo app - homepage</h1>
-		<header>
-			<a href="/signup"><button>Sign up</button></a>
-			<a href="/login"><button>Login</button></a>
+		<header id="header1">
+			<h1>Todo app - homepage</h1>
 		</header>
+		<header style="padding: 1rem">
+			<a href="/login" style="padding: 0.5rem">
+				<button style="padding: 0.5rem">Login</button>
+			</a>
+		</header>
+		<form id="signup-form">
+			<fieldset>
+				<legend>Sign Up</legend>
+				<p id="error-message" class="error" style="display: none; color: red"></p>
+				<label for="username">Username:</label>
+				<input type="text" id="username" name="username" required />
+				<br />
+				<label for="password">Password:</label>
+				<input type="password" id="password" name="password" required />
+				<br />
+				<button>Sign Up</button>
+			</fieldset>
+		</form>
 
 		<script src="/js/main.js"></script>
 	</body>
