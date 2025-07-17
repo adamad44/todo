@@ -2,9 +2,16 @@ const signUpFormElement = document.querySelector("#signup-form");
 const dashboardElement = document.querySelector("#dashboard-root");
 const token = localStorage.getItem("token");
 const currentPath = window.location.pathname;
-
-const publicPaths = ["/", "/login", "/sign-up"];
+const publicPaths = ["/", "/login"];
 const privatePaths = ["/dashboard"];
+const errorMessageElement = document.querySelector("#error-message");
+const usernameElement = document.querySelector("#username");
+const passwordElement = document.querySelector("#password");
+const loginFormElement = document.querySelector("#login-form");
+const logoutBtn = document.querySelector("#logout-button");
+const addTodoButton = document.querySelector("#add-todo-button");
+const todoInputField = document.querySelector("#todo-input");
+const todoListElement = document.querySelector("#todo-list");
 
 if (publicPaths.includes(currentPath) && token) {
 	window.location.href = "/dashboard";
@@ -18,8 +25,6 @@ if (currentPath === "/dashboard") {
 	loadTodos();
 }
 
-const logoutBtn = document.querySelector("#logout-button");
-
 if (logoutBtn) {
 	logoutBtn.addEventListener("click", () => {
 		localStorage.removeItem("token");
@@ -29,15 +34,13 @@ if (logoutBtn) {
 
 if (signUpFormElement) {
 	signUpFormElement.addEventListener("submit", async function (event) {
-		event.preventDefault(); // Stop the form from submitting normally
-
-		const username = document.querySelector("#username").value;
-		const password = document.querySelector("#password").value;
+		event.preventDefault();
+		const username = usernameElement.value;
+		const password = passwordElement.value;
 
 		console.log("Username:", username);
 		console.log("Password:", password);
 
-		// Send to your backend API
 		try {
 			const res = await fetch("/api/register", {
 				method: "POST",
@@ -49,35 +52,34 @@ if (signUpFormElement) {
 			console.log(data);
 
 			if (res.ok) {
-				document.querySelector("#error-message").style.display = "none";
+				errorMessageElement.style.display = "none";
 
 				window.location.href = "/login";
 			} else {
-				document.querySelector("#error-message").style.display = "block";
-				document.querySelector("#error-message").textContent =
+				errorMessageElement.style.display = "block";
+				errorMessageElement.textContent =
 					data.error || "Registration failed. Please try again.";
 				console.error("Registration error:", data.error);
 			}
 		} catch (err) {
 			console.error("Fetch error:", err);
-			document.querySelector("#error-message").style.display = "block";
-			document.querySelector("#error-message").textContent =
+			errorMessageElement.style.display = "block";
+			errorMessageElement.textContent =
 				"An error occurred while registering. Please try again.";
 		}
 	});
 }
-const loginFormElement = document.querySelector("#login-form");
+
 if (loginFormElement) {
 	loginFormElement.addEventListener("submit", async function (event) {
-		event.preventDefault(); // Stop the form from submitting normally
+		event.preventDefault();
 
-		const username = document.querySelector("#username").value;
-		const password = document.querySelector("#password").value;
+		const username = usernameElement.value;
+		const password = passwordElement.value;
 
 		console.log("Username:", username);
 		console.log("Password:", password);
 
-		// Send to your backend API
 		try {
 			const res = await fetch("/api/login", {
 				method: "POST",
@@ -89,19 +91,19 @@ if (loginFormElement) {
 			console.log(data);
 
 			if (res.ok) {
-				document.querySelector("#error-message").style.display = "none";
+				errorMessageElement.style.display = "none";
 				localStorage.setItem("token", data.token);
 				window.location.href = "/dashboard";
 			} else {
-				document.querySelector("#error-message").style.display = "block";
-				document.querySelector("#error-message").textContent =
+				errorMessageElement.style.display = "block";
+				errorMessageElement.textContent =
 					data.error || "Login failed. Please try again.";
 				console.error("Login error:", data.error);
 			}
 		} catch (err) {
 			console.error("Fetch error:", err);
-			document.querySelector("#error-message").style.display = "block";
-			document.querySelector("#error-message").textContent =
+			errorMessageElement.style.display = "block";
+			errorMessageElement.textContent =
 				"An error occurred while logging in. Please try again.";
 		}
 	});
@@ -129,12 +131,10 @@ async function loadTodos() {
 			todoItem.style.gap = "10px";
 			todoItem.style.marginBottom = "10px";
 
-			// Todo title
 			const titleSpan = document.createElement("span");
 			titleSpan.textContent = todo.title;
 			titleSpan.style.flexGrow = "1";
 
-			// Remove button
 			const removeButton = document.createElement("button");
 			removeButton.textContent = "Remove";
 			removeButton.style.padding = "5px 10px";
@@ -151,7 +151,6 @@ async function loadTodos() {
 				loadTodos();
 			});
 
-			// Edit button
 			const editButton = document.createElement("button");
 			editButton.textContent = "Edit";
 			editButton.style.padding = "5px 10px";
@@ -187,19 +186,14 @@ async function loadTodos() {
 	}
 }
 
-const addTodoButton = document.querySelector("#add-todo-button");
-const todoInputField = document.querySelector("#todo-input");
-const todoListElement = document.querySelector("#todo-list");
-
 if (addTodoButton) {
 	addTodoButton.addEventListener("click", async function (event) {
-		const errorMessage = document.querySelector("#error-message");
 		todoInputValue = todoInputField.value.trim();
 		if (!todoInputValue) {
-			errorMessage.style.display = "block";
-			errorMessage.textContent = "Enter a todo!";
+			errorMessageElement.style.display = "block";
+			errorMessageElement.textContent = "Enter a todo!";
 			return;
-		} else errorMessage.style.display = "none";
+		} else errorMessageElement.style.display = "none";
 
 		try {
 			const res = await fetch("/api/add-todo", {
@@ -220,9 +214,8 @@ if (addTodoButton) {
 			}
 		} catch (error) {
 			console.error("Error adding todo:", error);
-			const errorMessage = document.querySelector("#error-message");
-			errorMessage.style.display = "block";
-			errorMessage.textContent = "Failed to add todo. Please try again.";
+			errorMessageElement.style.display = "block";
+			errorMessageElement.textContent = "Failed to add todo. Please try again.";
 		}
 	});
 
