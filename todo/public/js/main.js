@@ -135,6 +135,15 @@ async function loadTodos() {
 			titleSpan.textContent = todo.title;
 			titleSpan.style.flexGrow = "1";
 
+			const checkButton = document.createElement("input");
+			checkButton.style.cursor = "pointer";
+			checkButton.type = "checkbox";
+			// removeButton.dataset.id = todo._id;
+			checkButton.addEventListener("click", function () {
+				const currentID = this.dataset._id;
+				checkButton.checked = !checkButton.checked;
+			});
+
 			const removeButton = document.createElement("button");
 			removeButton.textContent = "Remove";
 			removeButton.style.padding = "5px 10px";
@@ -178,6 +187,7 @@ async function loadTodos() {
 			todoItem.appendChild(titleSpan);
 			todoItem.appendChild(removeButton);
 			todoItem.appendChild(editButton);
+			todoItem.appendChild(checkButton);
 			todoListElement.appendChild(todoItem);
 		});
 		return todos;
