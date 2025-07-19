@@ -18,7 +18,9 @@ app.use("/", require("./src/routes/views"));
 app.use("/api", require("./src/routes/auth"));
 app.use("/api", require("./src/routes/todos"));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, "0.0.0.0", () => {
 	console.log(`Server is running on port ${PORT}`);
+	console.log(`Local: http://localhost:${PORT}`);
+	console.log(`Network: http://192.168.1.170:${PORT}`);
 });
