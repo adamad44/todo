@@ -135,13 +135,27 @@ async function loadTodos() {
 			titleSpan.textContent = todo.title;
 			titleSpan.style.flexGrow = "1";
 
+			titleSpan.style.textDecoration = todo.completed ? "line-through " : "none";
+			titleSpan.style.textDecorationThickness = todo.completed ? "2px" : "none";
+			titleSpan.style.color = todo.completed ? "grey" : "";
+
 			const checkButton = document.createElement("input");
 			checkButton.style.cursor = "pointer";
 			checkButton.type = "checkbox";
-			// removeButton.dataset.id = todo._id;
-			checkButton.addEventListener("click", function () {
-				const currentID = this.dataset._id;
-				checkButton.checked = !checkButton.checked;
+			checkButton.dataset.id = todo._id;
+			checkButton.checked = todo.completed;
+			checkButton.addEventListener("change", async function () {
+				const currentID = this.dataset.id;
+				titleSpan.style.textDecoration = this.checked ? "line-through " : "none";
+				titleSpan.style.textDecorationThickness = this.checked ? "2px" : "none";
+				titleSpan.style.color = this.checked ? "grey" : "";
+
+				const res = await fetch(`/api/change-state/${currentID}/${this.checked}`, {
+					method: "POST",
+					headers: {
+						Authorization: token,
+					},
+				});
 			});
 
 			const removeButton = document.createElement("button");
@@ -183,11 +197,11 @@ async function loadTodos() {
 					loadTodos();
 				}
 			});
-
+			todoItem.appendChild(checkButton);
 			todoItem.appendChild(titleSpan);
 			todoItem.appendChild(removeButton);
 			todoItem.appendChild(editButton);
-			todoItem.appendChild(checkButton);
+
 			todoListElement.appendChild(todoItem);
 		});
 		return todos;
