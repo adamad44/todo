@@ -105,3 +105,5 @@ temp/
 # GitHub Copilot instructions (private)
 .github/copilot-instructions.md
 .gitignore
+
+/.github
