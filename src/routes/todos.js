@@ -30,7 +30,9 @@ router.post("/add-todo", authenticateToken, async (req, res) => {
 			return res.status(400).json({ error: "Todo title is required" });
 		}
 
-		user.todos.push({ title });
+		const nextOrder =
+			user.todos.length > 0 ? Math.max(...user.todos.map((t) => t.order)) + 1 : 1;
+		user.todos.push({ title, order: nextOrder });
 		await user.save();
 
 		res.status(201).json({ success: true });
@@ -109,4 +111,31 @@ router.post(
 	}
 );
 
+router.post("/move/:id/:direction", authenticateToken, async (req, res) => {
+	try {
+		const currentID = req.params.id;
+		const direction = req.params.direction;
+
+		const user = await User.findById(req.user.userID);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const todo = user.todos.id(currentID);
+		if (!todo) return res.status(404).json({ error: "Todo not found" });
+
+		const maxOrder = Math.max(...user.todos.map((t) => t.order));
+
+		if (direction === "1" && todo.order > 1) {
+			todo.order--;
+		} else if (direction === "0" && todo.order < maxOrder) {
+			todo.order++;
+		}
+
+		await user.save();
+
+		return res.status(200).json({ success: true });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Failed to move todo" });
+	}
+});
 module.exports = router;

@@ -124,86 +124,117 @@ async function loadTodos() {
 
 		const todos = await res.json();
 		todoListElement.innerHTML = "";
-		todos.forEach((todo) => {
-			const todoItem = document.createElement("li");
-			todoItem.style.display = "flex";
-			todoItem.style.alignItems = "center";
-			todoItem.style.gap = "10px";
-			todoItem.style.marginBottom = "10px";
+		todos
+			.sort((a, b) => a.order - b.order)
+			.forEach((todo) => {
+				const todoItem = document.createElement("li");
+				todoItem.style.display = "flex";
+				todoItem.style.alignItems = "center";
+				todoItem.style.gap = "10px";
+				todoItem.style.marginBottom = "10px";
 
-			const titleSpan = document.createElement("span");
-			titleSpan.textContent = todo.title;
-			titleSpan.style.flexGrow = "1";
+				const titleSpan = document.createElement("span");
+				titleSpan.textContent = todo.title;
+				titleSpan.style.flexGrow = "1";
+				titleSpan.style.textDecoration = todo.completed ? "line-through " : "none";
+				titleSpan.style.textDecorationThickness = todo.completed ? "2px" : "none";
+				titleSpan.style.color = todo.completed ? "grey" : "";
 
-			titleSpan.style.textDecoration = todo.completed ? "line-through " : "none";
-			titleSpan.style.textDecorationThickness = todo.completed ? "2px" : "none";
-			titleSpan.style.color = todo.completed ? "grey" : "";
+				const upButton = document.createElement("button");
+				upButton.textContent = "Ʌ";
+				upButton.style.padding = "5px 5px";
+				upButton.style.fontSize = "1rem";
+				upButton.style.lineHeight = "1";
+				upButton.dataset.id = todo._id;
+				upButton.addEventListener("click", async function () {
+					const currentID = this.dataset.id;
 
-			const checkButton = document.createElement("input");
-			checkButton.style.cursor = "pointer";
-			checkButton.type = "checkbox";
-			checkButton.dataset.id = todo._id;
-			checkButton.checked = todo.completed;
-			checkButton.addEventListener("change", async function () {
-				const currentID = this.dataset.id;
-				titleSpan.style.textDecoration = this.checked ? "line-through " : "none";
-				titleSpan.style.textDecorationThickness = this.checked ? "2px" : "none";
-				titleSpan.style.color = this.checked ? "grey" : "";
-
-				const res = await fetch(`/api/change-state/${currentID}/${this.checked}`, {
-					method: "POST",
-					headers: {
-						Authorization: token,
-					},
-				});
-			});
-
-			const removeButton = document.createElement("button");
-			removeButton.textContent = "Remove";
-			removeButton.style.padding = "5px 10px";
-			removeButton.style.fontSize = "0.9rem";
-			removeButton.dataset.id = todo._id;
-			removeButton.addEventListener("click", async function () {
-				const currentID = this.dataset.id;
-				await fetch(`/api/delete-todo/${currentID}`, {
-					method: "DELETE",
-					headers: {
-						Authorization: token,
-					},
-				});
-				loadTodos();
-			});
-
-			const editButton = document.createElement("button");
-			editButton.textContent = "Edit";
-			editButton.style.padding = "5px 10px";
-			editButton.style.fontSize = "0.9rem";
-			editButton.dataset.id = todo._id;
-			editButton.addEventListener("click", async function () {
-				const currentID = this.dataset.id;
-				const newTitle = prompt("Enter new title:", todo.title);
-
-				if (newTitle && newTitle.trim()) {
-					await fetch(`/api/update-todo/${currentID}`, {
-						method: "PATCH",
+					const res = await fetch(`/api/move/${currentID}/1`, {
+						method: "POST",
 						headers: {
-							"Content-Type": "application/json",
 							Authorization: token,
 						},
-						body: JSON.stringify({
-							title: newTitle.trim(),
-						}),
+					});
+
+					if (res.ok) {
+						loadTodos();
+					}
+				});
+
+				const downButton = document.createElement("button");
+				downButton.textContent = "V";
+				downButton.style.padding = "5px 5px";
+				downButton.style.fontSize = "1rem";
+				downButton.style.lineHeight = "1";
+				downButton.dataset.id = todo._id;
+
+				const checkButton = document.createElement("input");
+				checkButton.style.cursor = "pointer";
+				checkButton.type = "checkbox";
+				checkButton.dataset.id = todo._id;
+				checkButton.checked = todo.completed;
+				checkButton.addEventListener("change", async function () {
+					const currentID = this.dataset.id;
+					titleSpan.style.textDecoration = this.checked ? "line-through " : "none";
+					titleSpan.style.textDecorationThickness = this.checked ? "2px" : "none";
+					titleSpan.style.color = this.checked ? "grey" : "";
+
+					const res = await fetch(`/api/change-state/${currentID}/${this.checked}`, {
+						method: "POST",
+						headers: {
+							Authorization: token,
+						},
+					});
+				});
+
+				const removeButton = document.createElement("button");
+				removeButton.textContent = "Remove";
+				removeButton.style.padding = "5px 10px";
+				removeButton.style.fontSize = "0.9rem";
+				removeButton.dataset.id = todo._id;
+				removeButton.addEventListener("click", async function () {
+					const currentID = this.dataset.id;
+					await fetch(`/api/delete-todo/${currentID}`, {
+						method: "DELETE",
+						headers: {
+							Authorization: token,
+						},
 					});
 					loadTodos();
-				}
-			});
-			todoItem.appendChild(checkButton);
-			todoItem.appendChild(titleSpan);
-			todoItem.appendChild(removeButton);
-			todoItem.appendChild(editButton);
+				});
 
-			todoListElement.appendChild(todoItem);
-		});
+				const editButton = document.createElement("button");
+				editButton.textContent = "Edit";
+				editButton.style.padding = "5px 10px";
+				editButton.style.fontSize = "0.9rem";
+				editButton.dataset.id = todo._id;
+				editButton.addEventListener("click", async function () {
+					const currentID = this.dataset.id;
+					const newTitle = prompt("Enter new title:", todo.title);
+
+					if (newTitle && newTitle.trim()) {
+						await fetch(`/api/update-todo/${currentID}`, {
+							method: "PATCH",
+							headers: {
+								"Content-Type": "application/json",
+								Authorization: token,
+							},
+							body: JSON.stringify({
+								title: newTitle.trim(),
+							}),
+						});
+						loadTodos();
+					}
+				});
+				todoItem.appendChild(checkButton);
+				todoItem.appendChild(titleSpan);
+				todoItem.appendChild(removeButton);
+				todoItem.appendChild(editButton);
+				todoItem.appendChild(upButton);
+				todoItem.appendChild(downButton);
+
+				todoListElement.appendChild(todoItem);
+			});
 		return todos;
 	} catch (error) {
 		console.error("Error loading todos:", error);
