@@ -142,9 +142,11 @@ async function loadTodos() {
 
 				const upButton = document.createElement("button");
 				upButton.textContent = "Ʌ";
-				upButton.style.padding = "5px 5px";
+				upButton.style.padding = "4px 4px";
 				upButton.style.fontSize = "1rem";
 				upButton.style.lineHeight = "1";
+				upButton.style.marginLeft = "10px";
+				upButton.style.marginRight = "0px";
 				upButton.dataset.id = todo._id;
 				upButton.addEventListener("click", async function () {
 					const currentID = this.dataset.id;
@@ -163,10 +165,23 @@ async function loadTodos() {
 
 				const downButton = document.createElement("button");
 				downButton.textContent = "V";
-				downButton.style.padding = "5px 5px";
+				downButton.style.padding = "4px 4px";
 				downButton.style.fontSize = "1rem";
 				downButton.style.lineHeight = "1";
+				downButton.style.marginLeft = "0px";
 				downButton.dataset.id = todo._id;
+				downButton.addEventListener("click", async function () {
+					const currentID = this.dataset.id;
+					const res = await fetch(`/api/move/${currentID}/0`, {
+						method: "POST",
+						headers: {
+							Authorization: token,
+						},
+					});
+					if (res.ok) {
+						loadTodos();
+					}
+				});
 
 				const checkButton = document.createElement("input");
 				checkButton.style.cursor = "pointer";
@@ -226,12 +241,18 @@ async function loadTodos() {
 						loadTodos();
 					}
 				});
+				const buttonContainer = document.createElement("div");
+				buttonContainer.style.display = "flex";
+				buttonContainer.style.gap = "3px";
+
+				buttonContainer.appendChild(upButton);
+				buttonContainer.appendChild(downButton);
+
 				todoItem.appendChild(checkButton);
 				todoItem.appendChild(titleSpan);
 				todoItem.appendChild(removeButton);
 				todoItem.appendChild(editButton);
-				todoItem.appendChild(upButton);
-				todoItem.appendChild(downButton);
+				todoItem.appendChild(buttonContainer);
 
 				todoListElement.appendChild(todoItem);
 			});

@@ -125,8 +125,18 @@ router.post("/move/:id/:direction", authenticateToken, async (req, res) => {
 		const maxOrder = Math.max(...user.todos.map((t) => t.order));
 
 		if (direction === "1" && todo.order > 1) {
+			const targetOrder = todo.order - 1;
+			const conflictingTodo = user.todos.find((t) => t.order === targetOrder);
+			if (conflictingTodo) {
+				conflictingTodo.order++;
+			}
 			todo.order--;
 		} else if (direction === "0" && todo.order < maxOrder) {
+			const targetOrder = todo.order + 1;
+			const conflictingTodo = user.todos.find((t) => t.order === targetOrder);
+			if (conflictingTodo) {
+				conflictingTodo.order--;
+			}
 			todo.order++;
 		}
 
