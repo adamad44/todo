@@ -661,11 +661,9 @@ sub {
 #inputs-container {
 	margin: 1rem auto;
 	gap: 1rem;
-
 	display: flex;
-	width: 40%;
+	width: 76%;
 	max-width: 1200px;
-
 	align-items: center;
 	justify-content: space-between;
 
@@ -674,4 +672,15 @@ sub {
 		width: 100%;
 		gap: 0.5rem;
 	}
+}
+
+#todo-description-input {
+	width: 15rem;
+	height: 6rem;
+	resize: vertical;
+	overflow-y: auto;
+	vertical-align: top;
+	white-space: pre-wrap;
+	font-size: 1rem;
+	color: #cbcbcb;
 }

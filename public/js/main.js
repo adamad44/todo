@@ -12,6 +12,9 @@ const logoutBtn = document.querySelector("#logout-button");
 const addTodoButton = document.querySelector("#add-todo-button");
 const todoInputField = document.querySelector("#todo-input");
 const todoListElement = document.querySelector("#todo-list");
+const todoDescriptionValueElement = document.querySelector(
+	"#todo-description-input"
+);
 
 if (publicPaths.includes(currentPath) && token) {
 	window.location.href = "/dashboard";
@@ -140,6 +143,18 @@ async function loadTodos() {
 				titleSpan.style.textDecorationThickness = todo.completed ? "2px" : "none";
 				titleSpan.style.color = todo.completed ? "grey" : "";
 
+				const descriptionSpan = document.createElement("span");
+				descriptionSpan.textContent = todo.description;
+				descriptionSpan.style.flexGrow = "1";
+				descriptionSpan.style.textDecoration = todo.completed
+					? "line-through "
+					: "none";
+				descriptionSpan.style.textDecorationThickness = todo.completed
+					? "2px"
+					: "none";
+				descriptionSpan.style.color = todo.completed ? "grey" : "";
+				if (!todo.description.trim()) descriptionSpan.style.display = "none";
+
 				const upButton = document.createElement("button");
 				upButton.textContent = "Ʌ";
 				upButton.style.padding = "4px 4px";
@@ -244,12 +259,18 @@ async function loadTodos() {
 				const buttonContainer = document.createElement("div");
 				buttonContainer.style.display = "flex";
 				buttonContainer.style.gap = "3px";
-
 				buttonContainer.appendChild(upButton);
 				buttonContainer.appendChild(downButton);
 
+				const todoContainer = document.createElement("div");
+				todoContainer.style.display = "flex";
+				todoContainer.style.gap = "3px";
+				todoContainer.style.flexDirection = "column";
+				todoContainer.appendChild(titleSpan);
+				todoContainer.appendChild(descriptionSpan);
+
 				todoItem.appendChild(checkButton);
-				todoItem.appendChild(titleSpan);
+				todoItem.appendChild(todoContainer);
 				todoItem.appendChild(removeButton);
 				todoItem.appendChild(editButton);
 				todoItem.appendChild(buttonContainer);
@@ -265,6 +286,7 @@ async function loadTodos() {
 if (addTodoButton) {
 	addTodoButton.addEventListener("click", async function (event) {
 		todoInputValue = todoInputField.value.trim();
+		todoDescriptionValue = todoDescriptionValueElement.value.trim();
 		if (!todoInputValue) {
 			errorMessageElement.style.display = "block";
 			errorMessageElement.textContent = "Enter a todo!";
@@ -278,12 +300,15 @@ if (addTodoButton) {
 					"Content-Type": "application/json",
 					Authorization: token,
 				},
-				body: JSON.stringify({ title: todoInputValue }),
+				body: JSON.stringify({
+					title: todoInputValue,
+					description: todoDescriptionValue,
+				}),
 			});
 
 			if (res.ok) {
-				console.log(`Todo added`);
 				todoInputField.value = "";
+				todoDescriptionValueElement.value = "";
 				loadTodos();
 			} else {
 				console.log(res.error);

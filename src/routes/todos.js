@@ -22,7 +22,7 @@ router.post("/add-todo", authenticateToken, async (req, res) => {
 	try {
 		const userId = req.user.userID;
 		const user = await User.findById(userId);
-		const { title } = req.body;
+		const { title, description } = req.body;
 
 		if (!user) return res.status(404).json({ error: "user not found" });
 
@@ -32,7 +32,7 @@ router.post("/add-todo", authenticateToken, async (req, res) => {
 
 		const nextOrder =
 			user.todos.length > 0 ? Math.max(...user.todos.map((t) => t.order)) + 1 : 1;
-		user.todos.push({ title, order: nextOrder });
+		user.todos.push({ title, description, order: nextOrder });
 		await user.save();
 
 		res.status(201).json({ success: true });
