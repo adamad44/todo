@@ -134,6 +134,7 @@ async function loadTodos() {
 				todoItem.style.display = "flex";
 				todoItem.style.alignItems = "center";
 				todoItem.style.gap = "10px";
+				todoItem.style.justifyContent = "space-between";
 				todoItem.style.marginBottom = "10px";
 
 				const titleSpan = document.createElement("span");
@@ -146,13 +147,15 @@ async function loadTodos() {
 				const descriptionSpan = document.createElement("span");
 				descriptionSpan.textContent = todo.description;
 				descriptionSpan.style.flexGrow = "1";
+				descriptionSpan.style.fontSize = "0.9rem";
+				descriptionSpan.style.color = "#9f9f9fff";
 				descriptionSpan.style.textDecoration = todo.completed
 					? "line-through "
 					: "none";
 				descriptionSpan.style.textDecorationThickness = todo.completed
 					? "2px"
 					: "none";
-				descriptionSpan.style.color = todo.completed ? "grey" : "";
+
 				if (!todo.description.trim()) descriptionSpan.style.display = "none";
 
 				const upButton = document.createElement("button");
@@ -209,6 +212,13 @@ async function loadTodos() {
 					titleSpan.style.textDecorationThickness = this.checked ? "2px" : "none";
 					titleSpan.style.color = this.checked ? "grey" : "";
 
+					descriptionSpan.style.textDecoration = this.checked
+						? "line-through "
+						: "none";
+					descriptionSpan.style.textDecorationThickness = this.checked
+						? "2px"
+						: "none";
+
 					const res = await fetch(`/api/change-state/${currentID}/${this.checked}`, {
 						method: "POST",
 						headers: {
@@ -241,8 +251,15 @@ async function loadTodos() {
 				editButton.addEventListener("click", async function () {
 					const currentID = this.dataset.id;
 					const newTitle = prompt("Enter new title:", todo.title);
+					const newDescription = prompt(
+						"enter a new description:",
+						todo.description
+					);
 
-					if (newTitle && newTitle.trim()) {
+					if (
+						(newTitle && newTitle.trim()) ||
+						(newDescription && newDescription.trim())
+					) {
 						await fetch(`/api/update-todo/${currentID}`, {
 							method: "PATCH",
 							headers: {
@@ -251,6 +268,7 @@ async function loadTodos() {
 							},
 							body: JSON.stringify({
 								title: newTitle.trim(),
+								description: newDescription.trim(),
 							}),
 						});
 						loadTodos();
@@ -269,11 +287,23 @@ async function loadTodos() {
 				todoContainer.appendChild(titleSpan);
 				todoContainer.appendChild(descriptionSpan);
 
-				todoItem.appendChild(checkButton);
-				todoItem.appendChild(todoContainer);
-				todoItem.appendChild(removeButton);
-				todoItem.appendChild(editButton);
-				todoItem.appendChild(buttonContainer);
+				const leftGroup = document.createElement("div");
+				leftGroup.style.display = "flex";
+				leftGroup.style.alignItems = "center";
+				leftGroup.style.gap = "10px";
+				leftGroup.appendChild(checkButton);
+				leftGroup.appendChild(todoContainer);
+
+				const rightGroup = document.createElement("div");
+				rightGroup.style.display = "flex";
+				rightGroup.style.alignItems = "center";
+				rightGroup.style.gap = "5px";
+				rightGroup.appendChild(removeButton);
+				rightGroup.appendChild(editButton);
+				rightGroup.appendChild(buttonContainer);
+
+				todoItem.appendChild(leftGroup);
+				todoItem.appendChild(rightGroup);
 
 				todoListElement.appendChild(todoItem);
 			});

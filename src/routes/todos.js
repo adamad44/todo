@@ -63,10 +63,15 @@ router.patch("/update-todo/:id", authenticateToken, async (req, res) => {
 	try {
 		const userId = req.user.userID;
 		const todoId = req.params.id;
-		const { title } = req.body;
+		const { title, description } = req.body;
 
-		if (!title || title.trim() === "") {
-			return res.status(400).json({ error: "Todo title is required" });
+		if (
+			!title ||
+			title.trim() === "" ||
+			!description ||
+			description.trim() === ""
+		) {
+			return res.status(400).json({ error: "Todo title/description is required" });
 		}
 
 		const user = await User.findById(userId);
@@ -76,6 +81,7 @@ router.patch("/update-todo/:id", authenticateToken, async (req, res) => {
 		if (!todo) return res.status(404).json({ error: "Todo not found" });
 
 		todo.title = title.trim();
+		todo.description = description.trim();
 		await user.save();
 
 		res.status(200).json({ success: true });
